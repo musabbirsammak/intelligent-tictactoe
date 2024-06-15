@@ -1,3 +1,5 @@
+import '../css/tictactoe.css';
+
 // board is an array of 9 elements representing 9 cells
 // of a tic-tac-toe game. Initially, each index will contain
 // numbers from 0 to 9 in them. It will later be changed to X or
@@ -22,9 +24,6 @@ const winCombinations = [
     [0, 4, 8],
     [6, 4, 2],
 ]
-
-// sets up a new board.
-setupBoard();
 
 /**
  * Setup a new tic-tac-toe board.
@@ -86,7 +85,7 @@ function mark(squareId, player) {
  * @returns {Object} Index and player if the player has won, null otherwise.
  */
 function hasWon(board, player) {
-    result = null;
+    let result = null;
 
     let plays = board.reduce((a, e, i) => (e === player)? a.concat(i): a, []);
     for (let [index, win] of winCombinations.entries()) {
@@ -218,4 +217,11 @@ function minimax(board, player) {
     }
 
     return moves[bestMove];
+}
+
+window.onload = function exampleFunction(){
+    setupBoard();
+
+    let replayButton = document.querySelector("#replay");
+    replayButton.addEventListener('click', setupBoard, false);
 }
