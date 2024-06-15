@@ -40,24 +40,42 @@ function setupBoard() {
     }
 }
 
+/**
+ * Handles click event on any cell in the board.
+ * 
+ * @param {int} square - Id of the clicked cell.
+ */
 function click(square) {
     if (typeof board[square.target.id] === 'number') {
-        let result = mark(square.target.id, humanPlayer);
-        if (!result) {
-            result = mark(bestMove(), aiPlayer);
-        } 
-        if (result) {
-            gameOver(result);
-        }
+        mark(square.target.id, humanPlayer);
+        let best = bestMove();
+        console.log(best);
+        mark(bestMove(), aiPlayer);
     } else {
         console.log("Already marked!");
     }
 }
 
+/**
+ * Mark a specific cell.
+ * 
+ * @param {int} squareId - Cell id to mark.
+ * @param {string} player - Current player.
+ */
 function mark(squareId, player) {
     board[squareId] = player;
     document.getElementById(squareId).innerText = player;
-    return checkResult(board, player);
+    
+    let won = hasWon(board, player);
+    if (won) {
+        gameOver(won);
+        return;
+    }
+
+    if (isTied()) {
+        disableBoard();
+        declareResult("The game is tied!");
+    }
 }
 
 /**
@@ -67,7 +85,7 @@ function mark(squareId, player) {
  * @param {String} player - Player whose turn it is.
  * @returns {Object} Index and player if the player has won, null otherwise.
  */
-function checkResult(board, player) {
+function hasWon(board, player) {
     result = null;
 
     let plays = board.reduce((a, e, i) => (e === player)? a.concat(i): a, []);
@@ -78,41 +96,46 @@ function checkResult(board, player) {
         }
     }
 
-    if (emptySquares().length == 0) {
-        result = {tie: true};
-        return result;
-    }
-    
     return result;
 }
 
-function gameOver(result) {
-    disableBoard();
-    if (result.tie) {
-        declareResult("The game is tied!");
+/**
+ * Checks whether the game is tied or not. Must be called after hasWon, because
+ * it may happen that all the cells are marked and someone has won.
+ * 
+ * @param {Array} board - Array of cells.
+ * @returns {boolean} true if the game is tied, false otherwise.
+ */
+function isTied(board) {
+    if (emptySquares().length == 0) {
+        return true;
     } else {
-        declareResult(result.player === 'X'? 'AI has won!': 'You have won!');
-        for (let index of winCombinations[result.index]) {
-            document.getElementById(index).style.backgroundColor = (result.player == humanPlayer)? 'red':'blue';
-        }
+        return false;
     }
 }
 
+/**
+ * Disables the board and marks the winning cells.
+ * 
+ * @param {Object} result - Result object with winning player.
+ */
+function gameOver(result) {
+    disableBoard();
+
+    declareResult(result.player === 'X'? 'AI has won!': 'You have won!');
+    for (let index of winCombinations[result.index]) {
+        document.getElementById(index).style.backgroundColor = (result.player == humanPlayer)? 'red':'blue';
+    }
+}
+
+/**
+ * Disables the whole after the match has been won or tied.
+ */
 function disableBoard() {
     for (let i = 0; i < cells.length; i++) {
         cells[i].style.backgroundColor = 'gray';
         cells[i].removeEventListener('click', click, false);
     }
-}
-
-/**
- * Returns the cells that are emtpy or where the users have not put their
- * marks yet.
- * 
- * @returns {Array} Array of indices of empty cells.
- */
-function emptySquares() {
-    return board.filter(s => typeof s === 'number');
 }
 
 /**
@@ -125,6 +148,74 @@ function declareResult(result) {
     document.querySelector("#result-text").innerText = result;
 }
 
+/**
+ * Returns the cells that are emtpy or where the users have not put their
+ * marks yet.
+ * 
+ * @returns {Array} Array of indices of empty cells.
+ */
+function emptySquares() {
+    return board.filter(s => typeof s === 'number');
+}
+
 function bestMove() {
-    return emptySquares()[0];
+    return minimax(board, aiPlayer).index;
+}
+
+/**
+ * Runs MiniMax algorithm to find the best move.
+ * 
+ * @param {Array} board - Board of Tic-Tac-Toe.
+ * @param {String} player - Current player.
+ * @returns {Object} Object with best move and respective score.
+ */
+function minimax(board, player) {
+    let available = emptySquares();
+    
+    if (hasWon(board, humanPlayer)) {
+        return {score: -10};
+    } else if (hasWon(board, aiPlayer)) {
+        return {score: 10};
+    } else if (available.length === 0) {
+        return {score: 0};
+    }
+
+    let moves = [];
+    for (let i = 0; i < available.length; i++) {
+        let move = {};
+        move.index = board[available[i]];
+        board[available[i]] = player;
+
+        if (player == aiPlayer) {
+            let result = minimax(board, humanPlayer);
+            move.score = result.score;
+        } else {
+            let result = minimax(board, aiPlayer);
+            move.score = result.score;
+        }
+
+        board[available[i]] = move.index;
+        moves.push(move);
+    }
+
+    let bestMove = null;
+    if (player === aiPlayer) {
+        let bestScore = -1000000;
+        for (let i = 0; i < moves.length; i++) {
+            if (moves[i].score > bestScore) {
+                bestMove = i;
+                bestScore = moves[i].score;
+            }
+        }
+    } else {
+        let bestScore = 1000000;
+        for (let i = 0; i < moves.length; i++) {
+            if (moves[i].score < bestScore) {
+                bestMove = i;
+                bestScore = moves[i].score;
+            }
+        }
+    }
+
+    return moves[bestMove];
 }
