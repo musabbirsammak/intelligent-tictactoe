@@ -132,7 +132,7 @@ function gameOver(result) {
  */
 function disableBoard() {
     for (let i = 0; i < cells.length; i++) {
-        cells[i].style.backgroundColor = 'gray';
+        cells[i].style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
         cells[i].removeEventListener('click', click, false);
     }
 }

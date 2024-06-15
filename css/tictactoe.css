@@ -1,5 +1,25 @@
+body {
+    background-color: #0b0606;
+    color: antiquewhite;
+
+    max-width: 100%;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    margin: 1rem 0;
+}
+
 table {
+    margin: 0 auto;
     border-collapse: collapse;
+}
+
+table {
+    color: chocolate;
+    font-weight: bolder;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.10);
 }
 
 td {
@@ -9,6 +29,8 @@ td {
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
+    font-size: 5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
 td:hover {
@@ -29,4 +51,29 @@ table tr td:first-child {
 
 table tr td:last-child {
     border-right: none;
+}
+
+button#replay {
+    display: block;
+    font-size: 1.5rem;
+    padding: 1em 1em;
+    margin: 1em auto;
+    color: antiquewhite;
+    background: rgba(0, 0, 0, 0.5);
+    border: 0.05px solid white;
+    border-radius: 1rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+button#replay:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+div#result {
+    font-size: 2rem;
+}
+
+div#result p {
+    text-align: center;
 }
