@@ -219,7 +219,7 @@ function minimax(board, player) {
     return moves[bestMove];
 }
 
-window.onload = function exampleFunction(){
+window.onload = function Run(){
     setupBoard();
 
     let replayButton = document.querySelector("#replay");
